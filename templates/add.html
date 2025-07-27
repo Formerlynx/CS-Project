@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<HTML lang="en">
+<head>
+  <title>Expense Tracker Add</title>
+</head>
+<body>
+<h2>Add Expense</h2>
+<form method="post">
+  Date: <input type="date" name="date" required><br>
+
+  <label>Select Category:</label>
+  <select name="category">
+    {% for cat in categories %}
+      <option value="{{ cat }}">{{ cat }}</option>
+    {% endfor %}
+  </select>
+
+  <label>Or Add New Category:</label>
+  <input type="text" name="new_category" placeholder="New category"><br>
+
+  Amount(Iin BHD): <input type="text" name="amount" required><br>
+  <input type="submit" value="Add">
+</form>
+
+<a href="/">Back to Home</a>
+</body>
+</HTML>

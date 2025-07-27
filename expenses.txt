@@ -1,0 +1,7 @@
+22-06-2025,Food,5
+22-06-2025,Grocery,10
+22-06-2025,Miscellaneous,7
+11-07-2025,Extra-Curriculars,25
+11-07-2025,Entertainment,5
+11-07-2025,Food,5
+26-07-2025,Food,28

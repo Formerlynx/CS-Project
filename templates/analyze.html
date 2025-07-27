@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<HTML lang="en">
+<head>
+  <title>Expense Tracker Home</title>
+</head>
+<body>
+<h2>Expense Analysis</h2>
+
+<form method="get">
+  <label>Select Time Range for Monthly Spending:</label>
+  <select name="range" onchange="this.form.submit()">
+    <option value="3" {% if selected_range == '3' %}selected{% endif %}>Past 3 Months</option>
+    <option value="6" {% if selected_range == '6' %}selected{% endif %}>Past 6 Months</option>
+    <option value="12" {% if selected_range == '12' %}selected{% endif %}>Past 12 Months</option>
+  </select>
+</form>
+
+<p><strong>Analyzing from:</strong> {{ start_date }} to {{ end_date }}</p>
+
+<h3>Current Month: {{ total }} BHD</h3>
+{% if highest %}
+<p>Highest Spending Category: {{ highest }}</p>
+<img src="{{ url_for('static', filename=chart) }}" alt="Current Month Pie Chart">
+{% else %}
+<p>No expenses recorded for this month.</p>
+{% endif %}
+
+<h3>Monthly Spending Overview</h3>
+{% if bar_chart %}
+<img src="{{ url_for('static', filename=bar_chart) }}" alt="Monthly Bar Chart">
+{% else %}
+<p>No data available for selected range.</p>
+{% endif %}
+
+<a href="/">Back to Home</a>
+</body>
+</HTML>

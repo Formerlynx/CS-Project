@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<HTML lang="en">
+<head>
+  <title>Expense Tracker View</title>
+</head>
+<body>
+<h2>Your Expenses</h2>
+
+{% for month, entries in expenses.items() %}
+  <h3>{{ month }}</h3>
+  <ul>
+    {% for date, category, amount in entries %}
+      <li>{{ date }} - {{ category }}: {{ amount }} BHD</li>
+    {% endfor %}
+  </ul>
+{% endfor %}
+
+<a href="/">Back to Home</a>
+</body>
+</HTML>
