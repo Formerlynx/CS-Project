@@ -4,4 +4,6 @@
 11-07-2025,Extra-Curriculars,25
 11-07-2025,Entertainment,5
 11-07-2025,Food,5
-26-07-2025,Food,28
+19-08-2025,Entertainment,1
+19-08-2025,Food,24
+19-08-2025,Miscellaneous,2
