@@ -1,27 +1,34 @@
 <!DOCTYPE html>
-<HTML lang="en">
+<html lang="en">
 <head>
-  <title>Expense Tracker Add</title>
+    <meta charset="UTF-8">
+    <title>Add Expense</title>
 </head>
 <body>
-<h2>Add Expense</h2>
-<form method="post">
-  Date: <input type="date" name="date" required><br>
+    <h1>Add Expense</h1>
+    <form method="POST" action="{{ url_for('add_expense') }}">
+        <label for="date">Date:</label>
+        <input type="date" name="date" required>
+        <br>
 
-  <label>Select Category:</label>
-  <select name="category">
-    {% for cat in categories %}
-      <option value="{{ cat }}">{{ cat }}</option>
-    {% endfor %}
-  </select>
+        <label for="category">Select Category:</label>
+        <select name="category">
+            <option value="">-- Select an Existing Category --</option>
+            {% for category in categories %}
+                <option value="{{ category }}">{{ category }}</option>
+            {% endfor %}
+        </select>
+        <br>
 
-  <label>Or Add New Category:</label>
-  <input type="text" name="new_category" placeholder="New category"><br>
+        <label for="new_category">Or Add New Category:</label>
+        <input type="text" name="new_category" placeholder="Enter new category">
+        <br>
 
-  Amount(In BHD): <input type="text" name="amount" required><br>
-  <input type="submit" value="Add">
-</form>
+        <label for="amount">Amount:</label>
+        <input type="number" name="amount" step="0.01" required>
+        <br>
 
-<a href="/">Back to Home</a>
+        <button type="submit">Add Expense</button>
+    </form>
 </body>
-</HTML>
+</html>
