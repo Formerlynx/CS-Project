@@ -1,22 +1,80 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+import matplotlib
+matplotlib.use('Agg')  # Use non-GUI backend for executables
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 from collections import defaultdict
 import os
+import sys
 import pyodbc
+import shutil
 from flask_bcrypt import Bcrypt
 
-app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Replace with a secure key
+# Configure paths for PyInstaller
+def get_base_path():
+    """Get the base path for resources (works for both dev and frozen)"""
+    if getattr(sys, 'frozen', False):
+        # Running as compiled executable
+        return sys._MEIPASS
+    else:
+        # Running as script
+        return os.path.dirname(os.path.abspath(__file__))
+
+def get_user_data_path():
+    """Get path for user data (persistent storage)"""
+    if sys.platform == 'win32':
+        # Windows: Use AppData\Local
+        base = os.path.join(os.environ.get('LOCALAPPDATA', os.path.expanduser('~')), 'ExpenseTracker')
+    else:
+        # Mac/Linux: Use home directory
+        base = os.path.join(os.path.expanduser('~'), '.expensetracker')
+    
+    if not os.path.exists(base):
+        os.makedirs(base)
+    return base
+
+def initialize_database():
+    """
+    Initialize the database for the application.
+    If running as executable, copy template database to user data folder.
+    """
+    if getattr(sys, 'frozen', False):
+        # Running as executable - use persistent user data folder
+        user_data_path = get_user_data_path()
+        db_path = os.path.join(user_data_path, 'expenses.accdb')
+        
+        # If database doesn't exist in user folder, copy template from exe
+        if not os.path.exists(db_path):
+            template_db = os.path.join(sys._MEIPASS, 'Database', 'expenses.accdb')
+            if os.path.exists(template_db):
+                print(f"First run detected. Creating database at: {db_path}")
+                shutil.copy2(template_db, db_path)
+                print("Database initialized successfully!")
+            else:
+                raise FileNotFoundError("Template database not found in executable!")
+        
+        return db_path
+    else:
+        # Running as script - use local Database folder
+        return os.path.join(os.getcwd(), 'Database', 'expenses.accdb')
+
+base_path = get_base_path()
+template_folder = os.path.join(base_path, 'templates')
+static_folder = os.path.join(base_path, 'static')
+
+app = Flask(__name__, template_folder=template_folder, static_folder=static_folder)
+app.secret_key = 'your_secret_key_change_in_production'  # CHANGE THIS IN PRODUCTION
 bcrypt = Bcrypt(app)
+
+# Initialize database path
+DB_PATH = initialize_database()
 
 # Function to connect to the Access database
 def get_db_connection():
-    db_path = os.path.join(os.getcwd(), 'database', 'expenses.accdb')
     db_password = 'password'  # Replace with the actual password
     conn_str = (
         r"DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};"
-        f"DBQ={db_path};"
+        f"DBQ={DB_PATH};"
         f"PWD={db_password};"
     )
     return pyodbc.connect(conn_str)
@@ -173,13 +231,25 @@ def analyze_expenses():
     categories = [row[0] for row in data]
     amounts = [row[1] for row in data]
 
+    # Ensure static folder exists for charts
+    if getattr(sys, 'frozen', False):
+        # Running as executable - save charts to user data folder
+        static_path = os.path.join(get_user_data_path(), 'static')
+    else:
+        # Running as script - use local static folder
+        static_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
+    
+    if not os.path.exists(static_path):
+        os.makedirs(static_path)
+
     # Generate Pie Chart
     plt.figure(figsize=(6, 6))
     plt.pie(amounts, labels=categories, autopct='%1.1f%%', startangle=140, textprops={'color': 'white'})
     plt.title('Expense Breakdown', color='white')
-    plt.gca().set_facecolor('#121212')  # Set the plot background
-    plt.gcf().set_facecolor('#121212')  # Set the figure background
-    plt.savefig('static/chart.png', dpi=300, bbox_inches='tight')
+    plt.gca().set_facecolor('#121212')
+    plt.gcf().set_facecolor('#121212')
+    chart_path = os.path.join(static_path, 'chart.png')
+    plt.savefig(chart_path, dpi=300, bbox_inches='tight')
     plt.close()
 
     # Generate Bar Chart
@@ -188,11 +258,12 @@ def analyze_expenses():
     plt.title('Monthly Spending Trend', color='white')
     plt.xlabel('Category', color='white')
     plt.ylabel('Amount', color='white')
-    plt.gca().set_facecolor('#121212')  # Set the plot background
-    plt.gcf().set_facecolor('#121212')  # Set the figure background
-    plt.xticks(color='white')  # Set x-axis label color
-    plt.yticks(color='white')  # Set y-axis label color
-    plt.savefig('static/bar_chart.png', dpi=300, bbox_inches='tight')
+    plt.gca().set_facecolor('#121212')
+    plt.gcf().set_facecolor('#121212')
+    plt.xticks(color='white')
+    plt.yticks(color='white')
+    bar_chart_path = os.path.join(static_path, 'bar_chart.png')
+    plt.savefig(bar_chart_path, dpi=300, bbox_inches='tight')
     plt.close()
 
     return render_template(
@@ -204,6 +275,18 @@ def analyze_expenses():
         start_date='Start Date',
         end_date='End Date'
     )
+
+# Route to serve chart images when running as executable
+@app.route('/static/<path:filename>')
+def serve_static(filename):
+    if getattr(sys, 'frozen', False):
+        # When running as executable, serve from user data folder
+        static_path = os.path.join(get_user_data_path(), 'static')
+        from flask import send_from_directory
+        return send_from_directory(static_path, filename)
+    else:
+        # When running as script, use default Flask static handling
+        return app.send_static_file(filename)
 
 # Route to edit expense
 @app.route('/edit/<int:expense_id>', methods=['GET', 'POST'])
@@ -264,4 +347,26 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # For executable, you might want to automatically open the browser
+    if getattr(sys, 'frozen', False):
+        import webbrowser
+        import threading
+        
+        def open_browser():
+            import time
+            time.sleep(1.5)
+            webbrowser.open('http://127.0.0.1:5000')
+        
+        threading.Thread(target=open_browser).start()
+    
+    print("=" * 60)
+    print("Expense Tracker Starting...")
+    print("=" * 60)
+    if getattr(sys, 'frozen', False):
+        print(f"Database location: {DB_PATH}")
+        print(f"Your data is safely stored at: {get_user_data_path()}")
+    print("Open your browser and navigate to: http://127.0.0.1:5000")
+    print("Press Ctrl+C to stop the server")
+    print("=" * 60)
+    
+    app.run(debug=False, host='127.0.0.1', port=5000)
