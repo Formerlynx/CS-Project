@@ -1,34 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Add Expense</title>
-</head>
-<body>
-    <h1>Add Expense</h1>
-    <form method="POST" action="{{ url_for('add_expense') }}">
-        <label for="date">Date:</label>
-        <input type="date" name="date" required>
-        <br>
+{% extends "base.html" %}
 
-        <label for="category">Select Category:</label>
-        <select name="category">
-            <option value="">-- Select an Existing Category --</option>
+{% block title %}Add Expense - Expense Tracker{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Add Expense</h1>
+<form method="POST" class="row g-3">
+    <div class="col-md-6">
+        <label for="date" class="form-label">Date</label>
+        <input type="date" name="date" id="date" class="form-control" required>
+    </div>
+    <div class="col-md-6">
+        <label for="category" class="form-label">Category</label>
+        <select name="category" id="category" class="form-select">
+            <option value="">-- Select a Category --</option>
             {% for category in categories %}
                 <option value="{{ category }}">{{ category }}</option>
             {% endfor %}
+            <option value="add_new">-- Add New Category --</option>
         </select>
-        <br>
+    </div>
+    <div class="col-md-6" id="new-category-container" style="display: none;">
+        <label for="new_category" class="form-label">New Category</label>
+        <input type="text" name="new_category" id="new_category" class="form-control">
+    </div>
+    <div class="col-md-6">
+        <label for="amount" class="form-label">Amount</label>
+        <input type="number" name="amount" id="amount" step="0.01" class="form-control" required>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Add Expense</button>
+    </div>
+</form>
 
-        <label for="new_category">Or Add New Category:</label>
-        <input type="text" name="new_category" placeholder="Enter new category">
-        <br>
-
-        <label for="amount">Amount:</label>
-        <input type="number" name="amount" step="0.01" required>
-        <br>
-
-        <button type="submit">Add Expense</button>
-    </form>
-</body>
-</html>
+<script>
+    document.getElementById('category').addEventListener('change', function () {
+        const newCategoryContainer = document.getElementById('new-category-container');
+        if (this.value === 'add_new') {
+            newCategoryContainer.style.display = 'block';
+        } else {
+            newCategoryContainer.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

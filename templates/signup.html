@@ -1,32 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Sign Up</title>
-</head>
-<body>
-    <h1>Sign Up</h1>
+{% extends "base.html" %}
 
-    <!-- Display flash messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul>
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+{% block title %}Signup - Expense Tracker{% endblock %}
 
-    <form method="POST" action="{{ url_for('signup') }}">
-        <label for="username">Username:</label>
-        <input type="text" name="username" required>
-        <br>
-        <label for="password">Password:</label>
-        <input type="password" name="password" required>
-        <br>
-        <button type="submit">Sign Up</button>
-    </form>
-    <p>Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
-</body>
-</html>
+{% block content %}
+<h1>Sign Up</h1>
+<form method="POST" action="{{ url_for('signup') }}">
+    <label for="username">Username:</label>
+    <input type="text" name="username" required>
+    <br>
+    <label for="password">Password:</label>
+    <input type="password" name="password" required>
+    <br>
+    <button type="submit">Sign Up</button>
+</form>
+<p>Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+{% endblock %}

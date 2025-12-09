@@ -1,25 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Expense Tracker Home</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body>
-  <h1>Expense Tracker</h1>
-  <ul>
-      <li><a href="/add">Add Expense</a></li>
-      <li><a href="/view">View Expenses</a></li>
-      <li><a href="/analyze">Analyze Expenses</a></li>
-  </ul>
-  <nav>
-    {% if session.get('user_id') %}
-        <p>Welcome, {{ session['username'] }}!</p>
-        <a href="{{ url_for('logout') }}">Logout</a>
-    {% else %}
-        <a href="{{ url_for('login') }}">Login</a>
-        <a href="{{ url_for('signup') }}">Sign Up</a>
-    {% endif %}
-  </nav>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Home - Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <h1>Welcome to Expense Tracker</h1>
+    <p class="lead">Track your expenses efficiently and gain insights into your spending habits.</p>
+</div>
+{% endblock %}

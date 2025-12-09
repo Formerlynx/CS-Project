@@ -1,37 +1,61 @@
-<!DOCTYPE html>
-<HTML lang="en">
-<head>
-  <title>Expense Tracker Home</title>
-</head>
-<body>
-<h2>Expense Analysis</h2>
+{% extends "base.html" %}
 
-<form method="get">
-  <label>Select Time Range for Monthly Spending:</label>
-  <select name="range" onchange="this.form.submit()">
-    <option value="3" {% if selected_range == '3' %}selected{% endif %}>Past 3 Months</option>
-    <option value="6" {% if selected_range == '6' %}selected{% endif %}>Past 6 Months</option>
-    <option value="12" {% if selected_range == '12' %}selected{% endif %}>Past 12 Months</option>
-  </select>
-</form>
+{% block title %}Analyze Expenses - Expense Tracker{% endblock %}
 
-<p><strong>Analyzing from:</strong> {{ start_date }} to {{ end_date }}</p>
+{% block content %}
+<div class="card" style="background: #0f0f0f; border: 1px solid #1f1f1f; border-radius: 12px; padding: 2rem; box-shadow: 0 0 20px rgba(0,0,0,0.4); color: #e0e0e0;
+">
 
-<h3>Current Month: {{ total }} BHD</h3>
-{% if highest %}
-<p>Highest Spending Category: {{ highest }}</p>
-<img src="{{ url_for('static', filename=chart) }}" alt="Current Month Pie Chart">
-{% else %}
-<p>No expenses recorded for this month.</p>
-{% endif %}
-
-<h3>Monthly Spending Overview</h3>
-{% if bar_chart %}
-<img src="{{ url_for('static', filename=bar_chart) }}" alt="Monthly Bar Chart">
-{% else %}
-<p>No data available for selected range.</p>
-{% endif %}
-
-<a href="/">Back to Home</a>
-</body>
-</HTML>
+        
+        <form method="GET" style="display: flex; gap: 1rem; align-items: center;">
+            <label for="range" style="font-weight: 500;">Time Range:</label>
+            <select name="range" id="range" class="form-control" style="width: auto;" onchange="this.form.submit()">
+                <option value="3" {% if selected_range == '3' %}selected{% endif %}>Last 3 months</option>
+                <option value="6" {% if selected_range == '6' %}selected{% endif %}>Last 6 months</option>
+                <option value="12" {% if selected_range == '12' %}selected{% endif %}>Last 12 months</option>
+            </select>
+        </form>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+        <div style="background: linear-gradient(135deg, #667eea20, #764ba220); padding: 1.5rem; border-radius: 10px; text-align: center;">
+            <h3 style="color: #667eea; margin-bottom: 0.5rem;">Current Month Total</h3>
+            <p style="font-size: 2rem; font-weight: bold; color: #cacaca;">{{ "%.3f"|format(total) }} BHD</p>
+        </div>
+        
+        {% if highest %}
+        <div style="background: linear-gradient(135deg, #667eea20, #764ba220); padding: 1.5rem; border-radius: 10px; text-align: center;">
+            <h3 style="color: #667eea; margin-bottom: 0.5rem;">Highest Category</h3>
+            <p style="font-size: 1.5rem; font-weight: bold; color: #cacaca;">{{ highest }}</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem;">
+        {% if chart %}
+        <div style="text-align: center;">
+            <h3 style="color: #667eea; margin-bottom: 1rem;">Current Month Breakdown</h3>
+            <img src="{{ url_for('static', filename=chart) }}" alt="Expense Breakdown Chart" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
+        </div>
+        {% endif %}
+        
+        {% if bar_chart %}
+        <div style="text-align: center;">
+            <h3 style="color: #667eea; margin-bottom: 1rem;">Monthly Spending Trend</h3>
+            <img src="{{ url_for('static', filename=bar_chart) }}" alt="Monthly Spending Chart" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
+            <p style="color: #ffffff; margin-top: 1rem; font-size: 0.9rem;">
+                Period: {{ start_date }} to {{ end_date }}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+    
+    {% if not chart and not bar_chart %}
+    <div class="text-center" style="padding: 3rem;">
+        <h3 style="color: #666; margin-bottom: 1rem;">No data available for analysis</h3>
+        <p style="color: #888; margin-bottom: 2rem;">Add some expenses to see your spending analysis and charts.</p>
+        <a href="{{ url_for('add_expense') }}" class="btn">Add Expenses</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

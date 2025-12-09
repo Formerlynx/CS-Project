@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Expense - Expense Tracker{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Edit Expense</h1>
+<form method="POST" class="row g-3">
+    <div class="col-md-6">
+        <label for="date" class="form-label">Date</label>
+        <input type="date" name="date" id="date" value="{{ expense[0] }}" class="form-control" required>
+    </div>
+    <div class="col-md-6">
+        <label for="category" class="form-label">Category</label>
+        <input type="text" name="category" id="category" value="{{ expense[1] }}" class="form-control" required>
+    </div>
+    <div class="col-md-6">
+        <label for="amount" class="form-label">Amount</label>
+        <input type="number" name="amount" id="amount" step="0.01" value="{{ expense[2] }}" class="form-control" required>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-success">Update Expense</button>
+        <a href="{{ url_for('view_expenses') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}
