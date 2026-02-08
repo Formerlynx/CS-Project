@@ -13,13 +13,13 @@
             <th>Actions</th>
         </tr>
     </thead>
-    <tbody id="expenses-table">
+    <tbody id="expenses-table" class="bg-dark text-white">
         {% for expense in expenses %}
-        <tr id="expense-{{ expense.id }}">
-            <td>{{ expense.date }}</td>
-            <td>{{ expense.category }}</td>
-            <td>{{ expense.amount }}</td>
-            <td>
+        <tr id="expense-{{ expense.id }}" class="bg-dark text-white">
+            <td class="bg-dark text-white">{{ expense.date }}</td>
+            <td class="bg-dark text-white">{{ expense.category }}</td>
+            <td class="bg-dark text-white">{{ "%.3f"|format(expense.amount) }}</td>
+            <td class="bg-dark text-white">
                 <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" class="btn btn-sm btn-primary">Edit</a>
                 <button class="btn btn-sm btn-danger delete-button" data-id="{{ expense.id }}">Delete</button>
             </td>
