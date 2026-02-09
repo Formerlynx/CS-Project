@@ -85,7 +85,7 @@
         
         {% if bar_chart %}
         <div style="text-align: center;">
-            <h3 style="color: #667eea; margin-bottom: 1rem;">Monthly Spending Trend</h3>
+            <h3 style="color: #667eea; margin-bottom: 1rem;">Time Period Spending Trend</h3>
             <img src="{{ url_for('static', filename=bar_chart) }}" alt="Monthly Spending Chart" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
             <p style="color: #ffffff; margin-top: 1rem; font-size: 0.9rem;">
                 Period: {{ start_date }} to {{ end_date }}
