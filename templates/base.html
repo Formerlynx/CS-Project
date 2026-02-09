@@ -15,7 +15,7 @@
                 {% if session.get('user_id') %}
                     <a href="{{ url_for('add_expense') }}" class="btn btn-outline-light btn-sm">Add Expense</a>
                     <a href="{{ url_for('view_expenses') }}" class="btn btn-outline-light btn-sm">View Expenses</a>
-                    <a href="{{ url_for('analyze_expenses') }}" class="btn btn-outline-light btn-sm">Analyze</a>
+                    <a href="{{ url_for('analyze_expenses') }}" class="btn btn-outline-light btn-sm">Analyze Expenses</a>
                     <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">Logout</a>
                 {% else %}
                     <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-sm">Login</a>

@@ -9,27 +9,71 @@
         
         <form method="GET" style="display: flex; gap: 1rem; align-items: center;">
             <label for="range" style="font-weight: 500;">Time Range:</label>
-            <select name="range" id="range" class="form-control" style="width: auto;" onchange="this.form.submit()">
+            <select name="range" id="range" class="form-control" style="width: auto;">
+                <option value="ytd" {% if selected_range == 'ytd' %}selected{% endif %}>Year to date</option>
+                <option value="previous_year" {% if selected_range == 'previous_year' %}selected{% endif %}>Previous year</option>
                 <option value="3" {% if selected_range == '3' %}selected{% endif %}>Last 3 months</option>
                 <option value="6" {% if selected_range == '6' %}selected{% endif %}>Last 6 months</option>
                 <option value="12" {% if selected_range == '12' %}selected{% endif %}>Last 12 months</option>
+                <option value="custom" {% if selected_range == 'custom' %}selected{% endif %}>Custom range</option>
             </select>
+
+            <div id="custom-range" style="display: {% if selected_range == 'custom' %}flex{% else %}none{% endif %}; gap: 0.5rem; align-items: center;">
+                <label for="start_date" style="font-weight: 500; margin-left: .5rem;">From</label>
+                <input type="date" name="start_date" id="start_date" class="form-control" value="{% if selected_range == 'custom' %}{{ request.args.get('start_date','') }}{% endif %}">
+                <label for="end_date" style="font-weight: 500;">To</label>
+                <input type="date" name="end_date" id="end_date" class="form-control" value="{% if selected_range == 'custom' %}{{ request.args.get('end_date','') }}{% endif %}">
+            </div>
+
+            <button type="submit" id="range-submit" class="btn btn-secondary">Apply</button>
         </form>
     </div>
     
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
         <div style="background: linear-gradient(135deg, #667eea20, #764ba220); padding: 1.5rem; border-radius: 10px; text-align: center;">
             <h3 style="color: #667eea; margin-bottom: 0.5rem;">Current Month Total</h3>
-            <p style="font-size: 2rem; font-weight: bold; color: #cacaca;">{{ "%.3f"|format(total) }} BHD</p>
+            <p style="font-size: 2rem; font-weight: bold; color: #cacaca;">{{ "%.3f"|format(current_month_total) }} BHD</p>
         </div>
         
-        {% if highest %}
+        {% if current_month_highest %}
         <div style="background: linear-gradient(135deg, #667eea20, #764ba220); padding: 1.5rem; border-radius: 10px; text-align: center;">
-            <h3 style="color: #667eea; margin-bottom: 0.5rem;">Highest Category</h3>
-            <p style="font-size: 1.5rem; font-weight: bold; color: #cacaca;">{{ highest }}</p>
+            <h3 style="color: #667eea; margin-bottom: 0.5rem;">Highest Category (Current Month)</h3>
+            <p style="font-size: 1.5rem; font-weight: bold; color: #cacaca;">{{ current_month_highest }}</p>
         </div>
         {% endif %}
+
+        <div style="background: linear-gradient(135deg, #23a6f020, #11998e20); padding: 1.5rem; border-radius: 10px; text-align: center;">
+            <h3 style="color: #23a6f0; margin-bottom: 0.5rem;">Year-to-Date Total</h3>
+            <p style="font-size: 1.6rem; font-weight: bold; color: #cacaca;">{{ "%.3f"|format(year_total) }} BHD</p>
+            {% if year_highest %}
+            <p style="margin-top: .5rem; color:#cacaca;">Top: <strong>{{ year_highest }}</strong></p>
+            {% endif %}
+        </div>
+
+        <div style="background: linear-gradient(135deg, #ffd16620, #ff996620); padding: 1.5rem; border-radius: 10px; text-align: center;">
+            <h3 style="color: #ff9966; margin-bottom: 0.5rem;">Selected Period Total</h3>
+            <p style="font-size: 1.6rem; font-weight: bold; color: #cacaca;">{{ "%.3f"|format(total_period) }} BHD</p>
+            {% if highest_period %}
+            <p style="margin-top: .5rem; color:#cacaca;">Top: <strong>{{ highest_period }}</strong></p>
+            {% endif %}
+        </div>
     </div>
+    <script>
+        // Show/hide custom range controls based on selection
+        const rangeSelect = document.getElementById('range');
+        const customContainer = document.getElementById('custom-range');
+        const submitBtn = document.getElementById('range-submit');
+
+        if (rangeSelect) {
+            rangeSelect.addEventListener('change', function () {
+                if (this.value === 'custom') {
+                    customContainer.style.display = 'flex';
+                } else {
+                    customContainer.style.display = 'none';
+                }
+            });
+        }
+    </script>
     
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem;">
         {% if chart %}
@@ -49,6 +93,13 @@
         </div>
         {% endif %}
     </div>
+    
+    {% if yearly_trend %}
+    <div style="margin-top: 2rem; text-align: center;">
+        <h3 style="color: #667eea; margin-bottom: 1rem;">Yearly Spend Tracker</h3>
+        <img src="{{ url_for('static', filename=yearly_trend) }}" alt="Yearly Trend" style="max-width: 100%; height: auto; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
+    </div>
+    {% endif %}
     
     {% if not chart and not bar_chart %}
     <div class="text-center" style="padding: 3rem;">
